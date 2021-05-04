@@ -1,4 +1,7 @@
 # README di erpinga
+Il contratto che fa il flashloan e' `contracts/Flashswap.sol`.
+
+Il client che lo chiama e' `./doit.js`
 ## setup steps by erpigna
   
 1. Rename `.env.template` to `.env` and fill out required information
