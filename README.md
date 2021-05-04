@@ -1,3 +1,32 @@
+# README di erpinga
+## setup steps by erpigna
+  
+1. Rename `.env.template` to `.env` and fill out required information
+2. Rename `.secrets.js.template` to `.env` and fill out required information
+3. **INUTILE: usiamo hardhat** Configure `truffle-config.js` with appropriate parameters (if you deploy a contract)
+4. Install node.js packages and compile a smart contract code
+```sh
+npm install
+npx hardhat compile # by erpigna: compila lo smart contract con hardhat anziche' truffle merda
+```
+5. Deployare il contratto: Migrate the contract to the network (confirm if you do this in BSC mainnet)
+```sh
+npx hardhat deploy --network mainnet
+```
+
+Nota: deployare il contratto costa qualche centesimo di dollaro, in BNB. I ricavati dei profitti di arbitraggio vanno all'indirizzo del creatore del contratto (comportamento definito in `Flashswap.sol`). Tenere a mente quindi che non conviene usare indirizzi di contratti creati da altre persone.
+
+## Eseguire lo script che interagisce col contratto
+Lo script si chiama `doit.js` che e' una versione funzionante di `index.js`.
+
+Ogni modifica va effettuata la'.
+
+Per eseguirlo e' sufficiente dare `node doit.js`
+
+
+# README originale
+
+
 # Pancake & BakerySwap arbitrage
  
 A sample application invokes a flashloan with `Flash Swaps` and a monitoring tool in Node.js.
