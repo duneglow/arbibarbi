@@ -74,7 +74,12 @@ module.exports = {
         process.env.PRIVATE_KEY,
         process.env.BSC_HTTPS
       ),
-      network_id: 56
+      network_id: 56,
+      confirmations: 3,
+      timeoutBlocks: 200,
+      skipDryRun: false,
+      // gasPrice: 20,
+      // gas: 245007,
     },
 
     // Useful for private networks

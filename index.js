@@ -46,11 +46,14 @@ const toTokenDecimals = [18];
 const amount = process.env.BNB_AMOUNT;
 
 const init = async () => {
+    console.log('initializing');
     const networkId = await web3.eth.net.getId();
 
+    console.log('Getting flashswap contract abi');
     const flashswap = new web3.eth.Contract(
         Flashswap.abi,
-        Flashswap.networks[networkId].address
+        //Flashswap.networks[networkId].address
+        '0X4C2C14C41400DEE551EF0F45F32508CAB2A129DD'
     );
 
     let subscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
