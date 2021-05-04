@@ -70,6 +70,9 @@ const init = async () => {
     );
     for (let i = 0; i < fromTokens.length; i++) {
         for (let j = 0; j < toTokens.length; j++) {
+            if (fromToken[i] == toToken[j]) {
+                continue;
+            }
             console.log(`Trading ${toTokens[j]}/${fromTokens[i]} ...`);
 
             const pairAddress = await pancakeFactory.methods.getPair(fromToken[i], toToken[j]).call();
@@ -135,19 +138,16 @@ const init = async () => {
             // } else {
             //     amount0 = 0;
             // }
-            if (true || profit > 0) {
-                console.log('yeeeeeeeeeeeeeeeeeeeeeee');
+            if (profit > 0) {
                 const tx = flashswap.methods.startArbitrage(
                     tokenIn,
                     tokenOut,
-                    profit > 0 ? 0 : amount0,
-                    profit > 0 ? amount1 : 0,
+                    0,
+                    amount1,
                 );
 
-                if (profit < 0) {
-                    profit = BigNumber(0).minus(profit);
-                }
 
+                /*
                 console.log(`getting gas price and gas cost...`);
                 const [gasPrice, gasCost] = await Promise.all([
                     web3.eth.getGasPrice(),
@@ -160,8 +160,11 @@ const init = async () => {
                 `);
 
                 const txCost = web3.utils.toBN(gasCost) * web3.utils.toBN(gasPrice);
-                profit = await new BigNumber(profit).minus(txCost);
                 console.log(`txn cost: ${txCost}`);
+                */
+                const txCost = BigNumber(0.015).shiftedBy(18);
+
+                profit = await new BigNumber(profit).minus(txCost);
 
                 if (profit > 0) {
                     console.log(`
@@ -191,99 +194,6 @@ const init = async () => {
             }
         }
     }
-    /*
-
-    // console.log(`GasLimit: ${block.gasLimit} and Timestamp: ${block.timestamp}`);
-
-    // console.log(`Trading ${toToken}/${fromToken} ...`);
-
-    const pairAddress = await pancakeFactory.methods.getPair(fromToken, toToken).call();
-    console.log(`pairAddress ${toToken}/${fromToken} is ${pairAddress}`);
-    const unit0 = await new BigNumber(amount);
-    const amount0 = await new BigNumber(unit0).shiftedBy(fromTokenDecimals[i]);
-    console.log(`Input amount of ${fromToken}: ${amount0.toString()}`);
-
-    // The quote currency needs to be WBNB
-    let tokenIn, tokenOut;
-    if (fromToken === WBNB) {
-        tokenIn = fromToken;
-        tokenOut = toToken;
-    }
-
-    if (toToken === WBNB) {
-        tokenIn = toToken;
-        tokenOut = fromToken;
-    }
-
-    // The quote currency is not WBNB
-    if (typeof tokenIn === 'undefined') {
-        return;
-    }
-
-    // call getAmountsOut in PancakeSwap
-    const amounts = await pancakeRouter.methods.getAmountsOut(amount0, [tokenIn, tokenOut]).call();
-    const unit1 = await new BigNumber(amounts[1]).shiftedBy(-toTokenDecimals[j]);
-    const amount1 = await new BigNumber(amounts[1]);
-    console.log(`
-        Buying token at PancakeSwap DEX
-        =================
-        tokenIn: ${unit0.toString()} ${tokenIn}
-        tokenOut: ${unit1.toString()} ${tokenOut}
-    `);
-
-    // call getAmountsOut in BakerySwap
-    const amounts2 = await bakeryRouter.methods.getAmountsOut(amount1, [tokenOut, tokenIn]).call();
-    const unit2 = await new BigNumber(amounts2[1]).shiftedBy(-fromTokenDecimals[i]);
-    const amount2 = await new BigNumber(amounts2[1]);
-    console.log(`
-        Buying back token at BakerySwap DEX
-        =================
-        tokenOut: ${unit1.toString()} ${tokenOut}
-        tokenIn: ${unit2.toString()} ${tokenIn}
-    `);
-
-    let profit = await new BigNumber(amount2).minus(amount0);
-    console.log(`Profit: ${profit.toString()}`);
-
-    if (profit > 0) {
-        const tx = flashswap.methods.startArbitrage(
-            tokenIn,
-            tokenOut,
-            0,
-            amount1
-        );
-
-        const [gasPrice, gasCost] = await Promise.all([
-            web3.eth.getGasPrice(),
-            tx.estimateGas({from: admin}),
-        ]);
-
-        const txCost = web3.utils.toBN(gasCost) * web3.utils.toBN(gasPrice);
-        profit = await new BigNumber(profit).minus(txCost);
-
-        if (profit > 0) {
-            console.log(`
-                Block # ${block.number}: Arbitrage opportunity found!
-                Expected profit: ${profit}
-            `);
-            const data = tx.encodeABI();
-            const txData = {
-                from: admin,
-                to: flashswap.options.address,
-                data,
-                gas: gasCost,
-                gasPrice
-            };
-            const receipt = await web3.eth.sendTransaction(txData);
-            console.log(`Transaction hash: ${receipt.transactionHash}`);
-        }
-    } else {
-        console.log(`
-            Block # ${block.number}: Arbitrage opportunity not found!
-            Expected profit: ${profit}
-        `);
-    }
-    */
 }
 
 init();
