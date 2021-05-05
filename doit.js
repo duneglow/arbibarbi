@@ -95,7 +95,11 @@ const init = async () => {
     for (const pair of pairs) {
 
         const amount = pair.token0.startAmt;
-        await tryPerformingArbitrage(pair, amount);
+
+        // prova ad arbitrare con diverse quantita' di denaro
+        for (multiplier of [0.5, 1, 2, 10]) {
+            await tryPerformingArbitrage(pair, amount * multiplier);
+        }
 
     }
 }
@@ -231,7 +235,8 @@ const startArbitrage = async (tokenIn, tokenOut, amount0, amount1, profit) => {
     const txCost = web3.utils.toBN(gasCost) * web3.utils.toBN(gasPrice);
     console.log(`txn cost: ${txCost}`);
     */
-    // workaround perche' il codice sopra non funziona
+
+    // workaround perche' il codice commentato sopra non funziona
     const txCost = BigNumber(0.0055).shiftedBy(18);
 
     profit = await new BigNumber(profit).minus(txCost);
