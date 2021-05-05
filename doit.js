@@ -32,27 +32,52 @@ const bakeryRouter = new web3.eth.Contract(
     addresses.bakery.router
 );
 
-const WBNB = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
+
+class Token {
+    constructor(name, address, decimals, startAmt) {
+     this.name = name; this.address = address;
+     this.decimals = decimals; this.startAmt = startAmt;
+    }
+}
+
 const fromTokens = [
-    'WBNB'
-];
-const fromToken = [
-    '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', // WBNB
-];
-const fromTokenDecimals = [18];
+    new Token('WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', 18, 100),
+    new Token('BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 100000),
+    new Token('USDT', '0x55d398326f99059ff775485246999027b3197955', 18, 100000),
+]
+
+// const WBNB = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
+// const fromTokens = [
+//     'WBNB',
+//     'BUSD',
+//     'USDT',
+// ];
+// const fromToken = [
+//     '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', // WBNB
+//     '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
+//     '0x55d398326f99059ff775485246999027b3197955', // USDT
+// ];
+// const fromTokenDecimals = [18, 18, 18];
 
 const toTokens = [
-    'BUSD',
-    // 'USDT',
-    // 'BAKE',
-];
-const toToken = [
-    '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
-    '0x55d398326f99059ff775485246999027b3197955', // USDT
-    '0xE02dF9e3e622DeBdD69fb838bB799E3F168902c5', // BAKE
-];
-const toTokenDecimals = [18, 18, 18];
-const amount = process.env.BNB_AMOUNT;
+    new Token('WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', 18, 100),
+    new Token('BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 100000),
+    new Token('USDT', '0x55d398326f99059ff775485246999027b3197955', 18, 100000),
+    new Token('BAKE', '0xE02dF9e3e622DeBdD69fb838bB799E3F168902c5', 18, 10000),
+]
+
+// const toTokens = [
+//     'BUSD',
+//     'USDT',
+//     'BAKE',
+// ];
+// const toToken = [
+//     '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
+//     '0x55d398326f99059ff775485246999027b3197955', // USDT
+//     '0xE02dF9e3e622DeBdD69fb838bB799E3F168902c5', // BAKE
+// ];
+// const toTokenDecimals = [18, 18, 18];
+// const amount = process.env.BNB_AMOUNT;
 
 function getAmountsOut(router, amount, pair) {
     return router.methods.getAmountsOut(amount, pair).call();
@@ -70,42 +95,50 @@ const init = async () => {
     );
     for (let i = 0; i < fromTokens.length; i++) {
         for (let j = 0; j < toTokens.length; j++) {
-            if (fromToken[i] == toToken[j]) {
+            const tokenA = fromTokens[i];
+            const tokenB = toTokens[j];
+            const amount = tokenA.startAmt;
+
+            if (tokenA.name == tokenB.name) {
                 continue;
             }
-            console.log(`Trading ${toTokens[j]}/${fromTokens[i]} ...`);
+            console.log(`Trading ${tokenB.name}/${tokenA.name} ...`);
 
-            const pairAddress = await pancakeFactory.methods.getPair(fromToken[i], toToken[j]).call();
-            console.log(`pairAddress ${toTokens[j]}/${fromTokens[i]} is ${pairAddress}`);
+            const pairAddress = await pancakeFactory.methods.getPair(tokenA.address, tokenB.address).call();
+            console.log(`pairAddress ${tokenB.name}/${tokenA.name} is ${pairAddress}`);
             const unit0 = await new BigNumber(amount);
-            let amount0 = await new BigNumber(unit0).shiftedBy(fromTokenDecimals[i]);
-            console.log(`Input amount of ${fromTokens[i]}: ${amount0.toString()}`);
+            let amount0 = await new BigNumber(unit0).shiftedBy(tokenA.decimals);
+            console.log(`Input amount of ${tokenA.name}: ${amount0.toString()}`);
 
-            // The quote currency needs to be WBNB
-            let tokenIn, tokenOut, tokenInName, tokenOutName;
-            if (fromToken[i] === WBNB) {
-                tokenIn = fromToken[i];
-                tokenInName = fromTokens[i];
-                tokenOut = toToken[j];
-                tokenOutName = toTokens[j];
-            }
+            // // The quote currency needs to be WBNB
+            // let tokenIn, tokenOut, tokenInName, tokenOutName;
+            // if (tokenA.address === WBNB) {
+            //     tokenIn = tokenA.address;
+            //     tokenInName = tokenA.name;
+            //     tokenOut = tokenB.address;
+            //     tokenOutName = tokenB.name;
+            // }
 
-            if (toToken[j] === WBNB) {
-                tokenIn = toToken[j];
-                tokenInName = toTokens[j];
-                tokenOut = fromToken[i];
-                tokenOutName = fromTokens[i];
-            }
+            // if (tokenB.address === WBNB) {
+            //     tokenIn = tokenB.address;
+            //     tokenInName = tokenB.name;
+            //     tokenOut = tokenA.address;
+            //     tokenOutName = tokenA.name;
+            // }
 
-            // The quote currency is not WBNB
-            if (typeof tokenIn === 'undefined') {
-                return;
-            }
+            // // The quote currency is not WBNB
+            // if (typeof tokenIn === 'undefined') {
+            //     return;
+            // }
 
+            tokenIn = tokenA.address;
+            tokenInName = tokenA.name;
+            tokenOut = tokenB.address;
+            tokenOutName = tokenB.name;
 
             const amounts = await getAmountsOut(pancakeRouter, amount0, [tokenIn, tokenOut]);
             // const amounts = await pancakeRouter.methods.getAmountsOut(amount0, [tokenIn, tokenOut]).call();
-            const unit1 = await new BigNumber(amounts[1]).shiftedBy(-toTokenDecimals[j]);
+            const unit1 = await new BigNumber(amounts[1]).shiftedBy(-tokenB.decimals);
             let amount1 = await new BigNumber(amounts[1]);
             console.log(`
                 Buying token at PancakeSwap DEX
@@ -116,7 +149,7 @@ const init = async () => {
 
             const amounts2 = await getAmountsOut(bakeryRouter, amount1, [tokenOut, tokenIn]);
             // const amounts2 = await bakeryRouter.methods.getAmountsOut(amount1, [tokenOut, tokenIn]).call();
-            const unit2 = await new BigNumber(amounts2[1]).shiftedBy(-fromTokenDecimals[i]);
+            const unit2 = await new BigNumber(amounts2[1]).shiftedBy(-tokenA.decimals);
             const amount2 = await new BigNumber(amounts2[1]);
             console.log(`
                 Buying back token at BakerySwap DEX
@@ -125,7 +158,7 @@ const init = async () => {
                 tokenIn: ${unit2.toString()} ${tokenInName}
             `);
 
-            let profit = await new BigNumber(amount2).minus(amount0).shiftedBy(-fromTokenDecimals[i]);
+            let profit = await new BigNumber(amount2).minus(amount0).shiftedBy(-tokenA.decimals);
             console.log(`Profit: ${profit.toString()} ${tokenInName}`);
 
             let tmp;
@@ -162,7 +195,7 @@ const init = async () => {
                 const txCost = web3.utils.toBN(gasCost) * web3.utils.toBN(gasPrice);
                 console.log(`txn cost: ${txCost}`);
                 */
-                const txCost = BigNumber(0.015).shiftedBy(18);
+                const txCost = BigNumber(0.0055).shiftedBy(18);
 
                 profit = await new BigNumber(profit).minus(txCost);
 
