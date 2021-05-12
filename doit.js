@@ -106,9 +106,9 @@ const init = async () => {
         // prova ad arbitrare con diverse quantita' di denaro
         for (multiplier of QTY_MULTIPLIERS) {
             // pair dritta
-            await tryPerformingArbitrage(pair, amount * multiplier);
+            await tryPerformingArbitrage(pair, amount * multiplier, pancakeRouter, bakeryRouter);
             // pair invertita
-            await tryPerformingArbitrage(pair.inverted, amount * multiplier);
+            await tryPerformingArbitrage(pair.inverted, amount * multiplier, pancakeRouter, bakeryRouter);
         }
         // esegui tutto insieme asincronamente
         // await Promise.all(QTY_MULTIPLIERS.map( (mult) => tryPerformingArbitrage(pair, amount*mult)));
@@ -145,13 +145,11 @@ async function calculateSwapOn(router, amount, path) {
     return [ value, wei ]
 }
 
-async function tryPerformingArbitrage(pair, amount) {
+async function tryPerformingArbitrage(pair, amount, router1, router2) {
 
     const tokenA = pair.token0;
     const tokenB = pair.token1;
     console.log(`Trading ${tokenB.name}/${tokenA.name} ...`);
-
-    const pairAddress = await getPairAddressFrom(pancakeFactory, pair);
 
 
     const unit0 = await new BigNumber(amount);
@@ -162,7 +160,7 @@ async function tryPerformingArbitrage(pair, amount) {
     // Calcolo quante banane mi danno con amount0 di $tokenA.address su exchangeX
     //    [value, wei]
     const [unit1, amount1] = await calculateSwapOn(
-                                            pancakeRouter, amount0, [tokenA.address, tokenB.address]);
+                                            router1, amount0, [tokenA.address, tokenB.address]);
     console.log(`
         Buying ${pair.name0} at PancakeSwap DEX
         =================
@@ -173,7 +171,7 @@ async function tryPerformingArbitrage(pair, amount) {
     // Calcolo quanti $tokenA.address mi danno con amount1 di banane su exchangeY
     //    [value, wei]
     const [unit2, amount2] = await calculateSwapOn(
-                                            bakeryRouter, amount1, [tokenB.address, tokenA.address]);
+                                            router2, amount1, [tokenB.address, tokenA.address]);
     console.log(`
         Selling ${pair.name0} at BakerySwap DEX
         =================
