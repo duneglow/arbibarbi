@@ -68,6 +68,9 @@ class Pair {
     get decimals1() {
         return this.token1.decimals
     }
+    get inverted() {
+        return new Pair(this.token1, this.token0);
+    }
 }
 
 
@@ -75,14 +78,15 @@ const WBNB = new Token('WBNB', '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', 18,
 const BUSD = new Token('BUSD', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 10000);
 const USDT = new Token('USDT', '0x55d398326f99059ff775485246999027b3197955', 18, 10000);
 const BAKE = new Token('BAKE', '0xE02dF9e3e622DeBdD69fb838bB799E3F168902c5', 18, 1000);
+const ETH  = new Token('ETH',  '0x2170ed0880ac9a755fd29b2688956bd959f933f8', 18, 10);
 
 const pairs = [
     new Pair(WBNB, BUSD),
-    new Pair(BUSD, WBNB),
     new Pair(WBNB, USDT),
-    new Pair(USDT, WBNB),
     new Pair(WBNB, BAKE),
-    new Pair(USDT, BUSD)
+    new Pair(BUSD, BAKE),
+    new Pair(USDT, BUSD),
+    new Pair(ETH,  WBNB),
 ]
 
 
@@ -97,9 +101,14 @@ const init = async () => {
         const amount = pair.token0.startAmt;
 
         // prova ad arbitrare con diverse quantita' di denaro
-        for (multiplier of [0.5, 1, 2, 10]) {
+        for (multiplier of [0.5, 1, 10]) {
+            // pair dritta
             await tryPerformingArbitrage(pair, amount * multiplier);
+            // pair invertita
+            await tryPerformingArbitrage(pair.inverted, amount * multiplier);
         }
+        // esegui tutto insieme asincronamente
+        // await Promise.all([0.5, 1, 2, 10].map( (mult) => tryPerformingArbitrage(pair, amount*mult)));
 
     }
 }

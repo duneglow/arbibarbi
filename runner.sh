@@ -11,7 +11,7 @@ SUCCESS_LOG='log_success'
 # Eseguiamo lo script ad libitum
 while true; do
 
-    node doit.js | tee "$LOGFILE_TEMP"
+    npx hardhat run doit.js | tee "$LOGFILE_TEMP"
 
     # se trovate opportunita' di arbitraggio, salva il log
     grep 'Arbitrage opportunity found!' $LOGFILE_TEMP && cat $LOGFILE_TEMP >> $SUCCESS_LOG
