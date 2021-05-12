@@ -45,7 +45,7 @@ class Token {
     }
 }
 
-class Pair {
+class TokenPair {
     constructor(token0, token1) {
         this.token0 = token0; this.token1 = token1;
     }
@@ -69,7 +69,7 @@ class Pair {
         return this.token1.decimals
     }
     get inverted() {
-        return new Pair(this.token1, this.token0);
+        return new TokenPair(this.token1, this.token0);
     }
 }
 
@@ -81,12 +81,12 @@ const BAKE = new Token('BAKE', '0xE02dF9e3e622DeBdD69fb838bB799E3F168902c5', 18,
 const ETH  = new Token('ETH',  '0x2170ed0880ac9a755fd29b2688956bd959f933f8', 18, 10);
 
 const pairs = [
-    new Pair(WBNB, BUSD),
-    new Pair(WBNB, USDT),
-    new Pair(WBNB, BAKE),
-    new Pair(BUSD, BAKE),
-    new Pair(USDT, BUSD),
-    new Pair(ETH,  WBNB),
+    new TokenPair(WBNB, BUSD),
+    new TokenPair(WBNB, USDT),
+    new TokenPair(WBNB, BAKE),
+    new TokenPair(BUSD, BAKE),
+    new TokenPair(USDT, BUSD),
+    new TokenPair(ETH,  WBNB),
 ]
 
 
