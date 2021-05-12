@@ -90,6 +90,9 @@ const pairs = [
 ]
 
 
+// different multipliers to the amount of money considered when scanning for arb opportunities
+const QTY_MULTIPLIERS = [ 0.1, 1, 10 ];
+
 const init = async () => {
     console.log('initializing');
     const networkId = await web3.eth.net.getId();
@@ -101,14 +104,14 @@ const init = async () => {
         const amount = pair.token0.startAmt;
 
         // prova ad arbitrare con diverse quantita' di denaro
-        for (multiplier of [0.5, 1, 10]) {
+        for (multiplier of QTY_MULTIPLIERS) {
             // pair dritta
             await tryPerformingArbitrage(pair, amount * multiplier);
             // pair invertita
             await tryPerformingArbitrage(pair.inverted, amount * multiplier);
         }
         // esegui tutto insieme asincronamente
-        // await Promise.all([0.5, 1, 2, 10].map( (mult) => tryPerformingArbitrage(pair, amount*mult)));
+        // await Promise.all(QTY_MULTIPLIERS.map( (mult) => tryPerformingArbitrage(pair, amount*mult)));
 
     }
 }
