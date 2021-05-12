@@ -159,35 +159,29 @@ async function tryPerformingArbitrage(pair, amount) {
     console.log(`Input amount of ${tokenA.name}: ${unit0.toString()}`);
 
 
-    tokenIn = tokenA.address;
-    tokenInName = tokenA.name;
-    tokenOut = tokenB.address;
-    tokenOutName = tokenB.name;
-
-
-    // Calcolo quante banane mi danno con amount0 di $tokenIn su exchangeX
+    // Calcolo quante banane mi danno con amount0 di $tokenA.address su exchangeX
     //    [value, wei]
     const [unit1, amount1] = await calculateSwapOn(
-                                            pancakeRouter, amount0, [tokenIn, tokenOut]);
+                                            pancakeRouter, amount0, [tokenA.address, tokenB.address]);
     console.log(`
         Buying ${pair.name0} at PancakeSwap DEX
         =================
-        Send: ${unit0.toString()} ${tokenInName}
-        Receive: ${unit1.toString()} ${tokenOutName}
+        Send: ${unit0.toString()} ${tokenA.name}
+        Receive: ${unit1.toString()} ${tokenB.name}
     `);
 
-    // Calcolo quanti $tokenIn mi danno con amount1 di banane su exchangeY
+    // Calcolo quanti $tokenA.address mi danno con amount1 di banane su exchangeY
     //    [value, wei]
     const [unit2, amount2] = await calculateSwapOn(
-                                            bakeryRouter, amount1, [tokenOut, tokenIn]);
+                                            bakeryRouter, amount1, [tokenB.address, tokenA.address]);
     console.log(`
         Selling ${pair.name0} at BakerySwap DEX
         =================
-        Send: ${unit1.toString()} ${tokenOutName}
-        Receive: ${unit2.toString()} ${tokenInName}
+        Send: ${unit1.toString()} ${tokenB.name}
+        Receive: ${unit2.toString()} ${tokenA.name}
     `);
     let profit = await new BigNumber(amount2).minus(amount0).shiftedBy(-tokenA.decimals);
-    console.log(`Profit: ${profit.toString()} ${tokenInName}`);
+    console.log(`Profit: ${profit.toString()} ${tokenA.name}`);
 
     if (profit > 0) {
         await startArbitrage(
